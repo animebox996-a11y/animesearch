@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Anime Box</title>
+
+<style>
+body{
+  margin:0;
+  background:#0b0b0f;
+  color:white;
+  font-family:Arial,sans-serif;
+  text-align:center;
+}
+
+header{
+  padding:45px 20px 25px;
+}
+
+h1{
+  font-size:42px;
+  margin:0 0 10px;
+}
+
+p{
+  color:#aaa;
+}
+
+.search{
+  width:90%;
+  max-width:600px;
+  margin:20px auto;
+}
+
+input{
+  width:100%;
+  box-sizing:border-box;
+  padding:16px 20px;
+  border-radius:30px;
+  border:1px solid #444;
+  background:#18181f;
+  color:white;
+  font-size:17px;
+  outline:none;
+}
+
+#results{
+  max-width:600px;
+  width:90%;
+  margin:20px auto;
+}
+
+.result{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  background:#18181f;
+  padding:14px;
+  margin:8px 0;
+  border-radius:12px;
+  text-align:left;
+}
+
+.result a{
+  background:#e91e63;
+  color:white;
+  text-decoration:none;
+  padding:8px 13px;
+  border-radius:8px;
+  font-size:13px;
+  font-weight:bold;
+}
+
+.loading{
+  color:#888;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>🍿 Anime Box</h1>
+  <p>Find your anime. Start watching.</p>
+</header>
+
+<div class="search">
+  <input
+    id="search"
+    type="text"
+    placeholder="🔍 Search anime..."
+    autocomplete="off"
+  >
+</div>
+
+<div id="results">
+  <p class="loading">Loading anime...</p>
+</div>
+
+<script>
+
+const API =
+"https://script.google.com/macros/s/AKfycbyQc9-QbVYqXWg0j8ztrIIp6_bXd-0-OtL6gSlTvtvjVAemaMeqpkdQygzyoNiRHRY/exec";
+
+let animeList = [];
+
+/* Load anime from Google Sheets API */
+fetch(API)
+  .then(response => response.json())
+  .then(data => {
+    animeList = data;
+    document.getElementById("results").innerHTML = "";
+  })
+  .catch(error => {
+    document.getElementById("results").innerHTML =
+      "<p>⚠️ Couldn't load anime database.</p>";
+    console.error(error);
+  });
+
+
+/* Search */
+document.getElementById("search").addEventListener("input", function(){
+
+  const query = this.value.toLowerCase().trim();
+  const results = document.getElementById("results");
+
+  if(!query){
+    results.innerHTML = "";
+    return;
+  }
+
+  const matches = animeList
+    .filter(item =>
+      item.anime &&
+      item.anime.toLowerCase().includes(query)
+    )
+    .slice(0,8);
+
+  if(matches.length === 0){
+    results.innerHTML = "<p>No anime found 😭</p>";
+    return;
+  }
+
+  results.innerHTML = matches.map(item => `
+    <div class="result">
+
+      <span>${item.anime}</span>
+
+      <a
+        href="${item.url}"
+        target="_blank"
+        rel="noopener noreferrer">
+        WATCH NOW
+      </a>
+
+    </div>
+  `).join("");
+
+});
+
+</script>
+
+</body>
+</html>
